@@ -10,7 +10,9 @@ public:
 	~Cube();
 	void Draw();
 	void DrawShadowMap();
+	void DrawSelectionMap();
 	void SetShadowMapShader(std::shared_ptr<Shader> shadowMapShader) { mShadowMapShader = shadowMapShader; }
+	void SetSelectionShader(std::shared_ptr<Shader> selectionShader) { mSelectionShader = selectionShader; }
 	void SetTex(unsigned int slot, unsigned int tex);
 	void SetTex(unsigned int slot, Face face, unsigned int tex);
 	void SetTex(unsigned int slot, const std::vector<unsigned int>& texVec);
@@ -24,6 +26,7 @@ private:
 private:
 	std::vector<CubeTex> mTexVec;
 	std::shared_ptr<Shader> mShadowMapShader;
+	std::shared_ptr<Shader> mSelectionShader;
 	unsigned int mVBO;
 	unsigned int mVAO;
 	unsigned int mEBO;

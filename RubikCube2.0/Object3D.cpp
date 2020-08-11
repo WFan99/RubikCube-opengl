@@ -1,13 +1,13 @@
 #include "Object3D.h"
 #include <stb_image.h>
 
-int Object3D::LoadTexture(const char* path)
+int Object3D::LoadTexture(const char* path, bool flip)
 {
 	unsigned int textureID;
 	glGenTextures(1, &textureID);
 
 	int width, height, nrComponents;
-	stbi_set_flip_vertically_on_load(true);
+	stbi_set_flip_vertically_on_load(flip);
 	unsigned char *data = stbi_load(path, &width, &height, &nrComponents, 0);
 	if (data)
 	{

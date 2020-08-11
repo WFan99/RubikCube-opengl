@@ -22,6 +22,12 @@
     <ClCompile Include="RubikCube.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="SkyBox.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ObserverCamera.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Cube.h">
@@ -37,6 +43,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="RubikCube.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="SkyBox.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ObserverCamera.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -69,6 +81,12 @@
       <Filter>Shader</Filter>
     </None>
     <None Include="Object.vs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="SelectionMap.vs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="SelectionMap.fs">
       <Filter>Shader</Filter>
     </None>
   </ItemGroup>

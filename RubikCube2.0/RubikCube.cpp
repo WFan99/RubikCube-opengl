@@ -1,13 +1,14 @@
 #include "RubikCube.h"
 #include <string>
 #include <glm/gtc/matrix_transform.hpp>
+#include <iostream>
 using namespace std;
 namespace {
 	const string texPathPre = "res/textures/rubikCube/";
 	const string texName[] = { "green.png","blue.png","white.png",
 							  "yellow.png","red.png","orange.png" };
 
-	const glm::vec3 TRANSLATE = glm::vec3(0.0f, 1.0f, 0.0f);
+	const glm::vec3 TRANSLATE = glm::vec3(0.0f, 0.3f, 0.0f);
 	constexpr float CUBE_SIZE = 0.3f;
 	
 }
@@ -29,13 +30,14 @@ RubikCube::RubikCube(std::shared_ptr<Shader> shader) :
 	for (int i = 0; i < 6; i++)
 	{
 		string path = texPathPre + texName[i];
-		mCubeTex[i] = Object3D::LoadTexture(path.c_str());
+		mCubeTex[i] = Object3D::LoadTexture(path.c_str(),true);
 	}
 }
 
 void RubikCube::Draw()
 {
 
+	mShader->use();
 	for (int y = 1; y >= -1; y--)
 	{
 		for (int z = -1; z <= 1; z++)
@@ -44,8 +46,7 @@ void RubikCube::Draw()
 			{
 				glm::mat4 model(1.0f);
 				model = glm::scale(model, glm::vec3(CUBE_SIZE));
-				model = glm::translate(model, glm::vec3(x, y, z)+TRANSLATE);
-				mShader->use();
+				model = glm::translate(model, glm::vec3(x, y, z)+ TRANSLATE);		
 				mShader->setMat4("model", model);
 				vector<Color> colors(6, None);
 				if (x == -1)
@@ -73,4 +74,47 @@ void RubikCube::Draw()
 			}
 		}
 	}
+}
+
+void RubikCube::DrawShadowMap()
+{
+	mShadowMapShader->use();
+	glm::mat4 model(1.0f);
+	model = glm::scale(model, glm::vec3(CUBE_SIZE*3));
+	model = glm::translate(model, TRANSLATE);
+	mShadowMapShader->setMat4("model", model);
+	mCube.DrawShadowMap();
+}
+
+void RubikCube::DrawSelectionMap()
+{
+	mSelectionShader->use();
+	int id = 0;
+	for (int y = 1; y >= -1; y--)
+	{
+		for (int z = -1; z <= 1; z++)
+		{
+			for (int x = -1; x <= 1; x++)
+			{
+				glm::mat4 model(1.0f);
+				//BACK,FRONT,LEFT,RIGHT,UP,DOWN
+				model = glm::scale(model, glm::vec3(CUBE_SIZE));
+				model = glm::translate(model, glm::vec3(x, y, z));
+				mSelectionShader->setMat4("model", model);
+				mSelectionShader->setInt("code", ++id);
+				mCube.DrawSelectionMap();
+			}
+		}
+	}
+}
+
+void RubikCube::ProcessClickEvent(double x, double y, bool leftBtn)
+{
+	DrawSelectionMap();
+	unsigned char res[4];
+	int viewport[4];
+	glGetIntegerv(GL_VIEWPORT, viewport);
+	glReadPixels(x, viewport[3] - y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, &res);
+	std::cout << (unsigned)res[0] << std::endl;
+
 }

@@ -8,7 +8,7 @@ public:
 	virtual ~Object3D() {};
 	virtual void Draw() = 0;
 
-	static int LoadTexture(const char* path);
+	static int LoadTexture(const char* path, bool flip);
 
 public:
 	enum Attribute{Position = 1, Normal=2, Texture=4};

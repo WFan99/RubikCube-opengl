@@ -7,10 +7,11 @@ public:
 	SkyBox(std::shared_ptr<Shader> shader);
 	~SkyBox();
 	void Draw();
-	void SetTex(const std::vector<unsigned int>& tex) { mTex = tex; };
+	void SetCubmapTex(unsigned int cubemapTex) { mCubmapTexture = cubemapTex; }
+	static unsigned int LoadCubemapTexture(const char** path, bool flip);
 
 private:
-	std::vector<unsigned int> mTex;
+	unsigned int mCubmapTexture;
 	unsigned int mVBO;
 	unsigned int mVAO;
 	unsigned int mEBO;

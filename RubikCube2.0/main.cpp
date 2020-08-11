@@ -9,9 +9,11 @@
 #include "Cube.h"
 #include "Light.h"
 #include "RubikCube.h"
+#include "SkyBox.h"
+#include "ObserverCamera.h"
 
-unsigned int SCR_WIDTH = 1600;
-unsigned int SCR_HEIGHT = 1200;
+unsigned int SCR_WIDTH = 800;
+unsigned int SCR_HEIGHT = 600;
 
 const unsigned int SHADOW_WIDTH = 1024;
 const unsigned int SHADOW_HEIGHT = 1024;
@@ -23,9 +25,11 @@ float lastFrame = 0.0f;
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 void processInput(GLFWwindow *window);
 
-Camera camera(glm::vec3(0.0f, 0.0F, 3.0f));
+RubikCube* pRubickCube = NULL;
+ObserverCamera observerCamera(glm::vec3(0.0f,0.0f,3.0f),glm::vec3(0.0f));
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
@@ -57,6 +61,7 @@ int main()
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetScrollCallback(window, scroll_callback);
+	glfwSetMouseButtonCallback(window, mouse_button_callback);
 
 	// tell GLFW to capture our mouse
 	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -98,18 +103,23 @@ int main()
 		std::make_shared<Shader>("ShadowQuad.vs", "ShadowQuad.fs");
 	std::shared_ptr<Shader> shadowMapShader =
 		std::make_shared<Shader>("ShadowMap.vs", "ShadowMap.fs");
+	std::shared_ptr<Shader> selectionMapShader =
+		std::make_shared<Shader>("SelectionMap.vs", "SelectionMap.fs");
 
 
-	unsigned int planeTex = Object3D::LoadTexture("res/textures/wood.png");
-	unsigned int cubeTex = Object3D::LoadTexture("res/textures/container.png");
-	std::vector<unsigned int> skyBoxTex(6);
+	unsigned int planeTex = Object3D::LoadTexture("res/textures/wood.png", true);
 
-	skyBoxTex[Cube::Back] = Object3D::LoadTexture("res/skybox/back.jpg");
-	skyBoxTex[Cube::Bottom] = Object3D::LoadTexture("res/skybox/bottom.jpg");
-	skyBoxTex[Cube::Front] = Object3D::LoadTexture("res/skybox/front.jpg");
-	skyBoxTex[Cube::Left] = Object3D::LoadTexture("res/skybox/left.jpg");
-	skyBoxTex[Cube::Right] = Object3D::LoadTexture("res/skybox/right.jpg");
-	skyBoxTex[Cube::Top] = Object3D::LoadTexture("res/skybox/top.jpg");
+	std::vector<const char*> path = {
+		"res/skybox/right.jpg",
+		"res/skybox/left.jpg",
+		"res/skybox/top.jpg",
+		"res/skybox/bottom.jpg",
+		"res/skybox/front.jpg",
+		"res/skybox/back.jpg",
+	};
+
+	unsigned int skyBoxTex = SkyBox::LoadCubemapTexture(path.data(),false);
+
 
 	unsigned int planeAttri = Object3D::Attribute::Position | Object3D::Attribute::Normal | Object3D::Attribute::Texture;
 	Plane plane(objectShader, planeAttri);
@@ -121,18 +131,15 @@ int main()
 	Plane ShadowQuadTexture(ShadowQuadShader, ShadowQuadTexureAttri);
 	ShadowQuadTexture.SetTex(GL_TEXTURE0, depthMap);
 
-	unsigned int cubeAttri = Object3D::Attribute::Position | Object3D::Attribute::Normal |  Object3D::Attribute::Texture;
-	Cube cube(objectShader, cubeAttri);
-	cube.SetTex(GL_TEXTURE0, cubeTex);
-	cube.SetTex(GL_TEXTURE1, depthMap);
-	cube.SetShadowMapShader(shadowMapShader);
 
 	RubikCube rubickCube(objectShader);
+	rubickCube.SetShadowMapShader(shadowMapShader);
+	rubickCube.SetSelectionShader(selectionMapShader);
+	pRubickCube = &rubickCube;
 
-	
-	unsigned int skyBoxAttri = Object3D::Attribute::Position | Object3D::Attribute::Texture;
-	Cube skyBox(skyBoxShader, skyBoxAttri);
-	skyBox.SetTex(GL_TEXTURE0,skyBoxTex);
+	SkyBox skyBox(skyBoxShader);
+	skyBox.SetCubmapTex(skyBoxTex);
+
 
 	unsigned int lightAttri = Object3D::Attribute::Position;
 	Cube lightCube(lightShader, lightAttri);
@@ -186,18 +193,15 @@ int main()
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_DEPTH_BUFFER_BIT);
 		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-		float near_plane = 1.0f, far_plane = 7.5f;
+		float near_plane = 1.0f, far_plane = 15.0f;
 		glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.f, 10.0f, near_plane, far_plane);
 		glm::mat4 lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		glm::mat4 lightSpaceMatrix = lightProjection* lightView;
-#if 0
-		glm::mat4 cubeModel = glm::mat4(1.0f);
-		cubeModel = glm::translate(cubeModel, glm::vec3(0, 0.5, 0));
+
+
 		shadowMapShader->use();
 		shadowMapShader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
-		shadowMapShader->setMat4("model", cubeModel);
-		cube.DrawShadowMap();
-#endif
+		rubickCube.DrawShadowMap();
 
 		glm::mat4 planeModel = glm::mat4(1.0f);
 		planeModel = glm::translate(planeModel, glm::vec3(0, -0.5, 0));
@@ -217,13 +221,17 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
 		
-		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom),
+		glm::mat4 projection = glm::perspective(glm::radians(observerCamera.GetZoom()),
 			(float)SCR_WIDTH/(float)SCR_HEIGHT, 0.1f, 100.0f );
-		glm::mat4 view = camera.GetViewMatrix();
+		glm::mat4 view = observerCamera.GetViewMatrix();
+		selectionMapShader->use();
+		selectionMapShader->setMat4("projection", projection);
+		selectionMapShader->setMat4("view", view);
+
 		objectShader->use();
 		objectShader->setMat4("projection", projection);
 		objectShader->setMat4("view", view);
-		objectShader->setVec3("viewPos", camera.Position);
+		objectShader->setVec3("viewPos", observerCamera.GetPosition());
 		objectShader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
 
 		objectShader->setMat4("model", planeModel);
@@ -240,17 +248,13 @@ int main()
 		lightShader->setMat4("view", view);
 		lightCube.Draw();
 
-		glCullFace(GL_FRONT);
-		glDepthFunc(GL_EQUAL);
+		
 		glm::mat4 skyBoxModel = glm::mat4(1.0f);
 		skyBoxModel = glm::translate(skyBoxModel, glm::vec3(3, 1, 0));
 		skyBoxShader->use();
-		skyBoxShader->setMat4("model", skyBoxModel);
 		skyBoxShader->setMat4("projection", projection);
 		skyBoxShader->setMat4("view", glm::mat4(glm::mat3(view)));
 		skyBox.Draw();
-		glDepthFunc(GL_LESS);
-		glCullFace(GL_BACK);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -264,14 +268,6 @@ void processInput(GLFWwindow *window)
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
 
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		camera.ProcessKeyboard(FORWARD, deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		camera.ProcessKeyboard(BACKWARD, deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		camera.ProcessKeyboard(LEFT, deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		camera.ProcessKeyboard(RIGHT, deltaTime);
 }
 
 
@@ -297,9 +293,21 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	lastX = xpos;
 	lastY = ypos;
 
-	camera.ProcessMouseMovement(xoffset, yoffset);
+	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS)
+	{
+		observerCamera.ProcessMouseMovement(xoffset, yoffset);
+	}
 }
+
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+{
+	double xpos, ypos;
+	glfwGetCursorPos(window, &xpos, &ypos);
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+		pRubickCube->ProcessClickEvent(xpos, ypos, true);
+}
+
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-	camera.ProcessMouseScroll(yoffset);
+	observerCamera.ProcessMouseScroll(yoffset);
 }

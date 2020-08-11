@@ -136,22 +136,28 @@
     <ClCompile Include="glad.c" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Object3D.cpp" />
+    <ClCompile Include="ObserverCamera.cpp" />
     <ClCompile Include="Plane.cpp" />
     <ClCompile Include="RubikCube.cpp" />
+    <ClCompile Include="SkyBox.cpp" />
     <ClCompile Include="stb_image.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Cube.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="Object3D.h" />
+    <ClInclude Include="ObserverCamera.h" />
     <ClInclude Include="Plane.h" />
     <ClInclude Include="RubikCube.h" />
+    <ClInclude Include="SkyBox.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Light.fs" />
     <None Include="light.vs" />
     <None Include="Object.fs" />
     <None Include="Object.vs" />
+    <None Include="SelectionMap.fs" />
+    <None Include="SelectionMap.vs" />
     <None Include="ShadowQuad.fs" />
     <None Include="ShadowQuad.vs" />
     <None Include="ShadowMap.fs" />

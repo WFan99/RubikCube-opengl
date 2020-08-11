@@ -251,3 +251,9 @@ void Cube::DrawShadowMap()
 	glBindVertexArray(mVAO);
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 }
+void Cube::DrawSelectionMap()
+{
+	mSelectionShader->use();
+	glBindVertexArray(mVAO);
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+}
