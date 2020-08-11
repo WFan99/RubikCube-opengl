@@ -88,6 +88,10 @@ void RubikCube::DrawShadowMap()
 
 void RubikCube::DrawSelectionMap()
 {
+	
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+
 	mSelectionShader->use();
 	int id = 0;
 	for (int y = 1; y >= -1; y--)
@@ -106,15 +110,18 @@ void RubikCube::DrawSelectionMap()
 			}
 		}
 	}
+
 }
 
 void RubikCube::ProcessClickEvent(double x, double y, bool leftBtn)
 {
+	glBindFramebuffer(GL_FRAMEBUFFER, mSelectionFbo);
 	DrawSelectionMap();
-	unsigned char res[4];
+	unsigned char res;
 	int viewport[4];
 	glGetIntegerv(GL_VIEWPORT, viewport);
-	glReadPixels(x, viewport[3] - y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, &res);
-	std::cout << (unsigned)res[0] << std::endl;
+	glReadPixels(x, viewport[3] - y, 1, 1, GL_RED, GL_UNSIGNED_BYTE, &res);
+	std::cout << (unsigned)res << std::endl;
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 }

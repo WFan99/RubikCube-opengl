@@ -92,6 +92,22 @@ int main()
 	glReadBuffer(GL_NONE);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+	// SelectionMapFbo, Red only
+	unsigned int selectionMapFBO;
+	glGenFramebuffers(1, &selectionMapFBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, selectionMapFBO);
+	unsigned int selectionTex;
+	glGenTextures(1, &selectionTex);
+	glBindTexture(GL_TEXTURE_2D, selectionTex);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, SCR_WIDTH, SCR_HEIGHT, 0, GL_RED, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, selectionTex, 0);
+	glBindFramebuffer(GL_FRAMEBUFFER,0);
+
 
 	std::shared_ptr<Shader> objectShader =
 		std::make_shared<Shader>("Object.vs", "Object.fs");
@@ -135,6 +151,7 @@ int main()
 	RubikCube rubickCube(objectShader);
 	rubickCube.SetShadowMapShader(shadowMapShader);
 	rubickCube.SetSelectionShader(selectionMapShader);
+	rubickCube.SetSelectionObject(selectionMapFBO, selectionTex);
 	pRubickCube = &rubickCube;
 
 	SkyBox skyBox(skyBoxShader);
@@ -304,7 +321,9 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 	double xpos, ypos;
 	glfwGetCursorPos(window, &xpos, &ypos);
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+	{
 		pRubickCube->ProcessClickEvent(xpos, ypos, true);
+	}
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)

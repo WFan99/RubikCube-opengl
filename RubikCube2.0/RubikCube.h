@@ -15,6 +15,11 @@ public:
 	void SetSelectionShader(std::shared_ptr<Shader> selectionShader) { 
 		mSelectionShader = selectionShader;
 		mCube.SetSelectionShader(selectionShader);}
+	void SetSelectionObject(unsigned int fbo, unsigned int tex) {
+		mSelectionFbo = fbo;
+		mSelectionTex = tex;
+	}
+
 	void ProcessClickEvent(double x, double y, bool leftBtn);
 private:
 	enum RubikFace { Back, Front, Left, Right, Bottom, Top };
@@ -22,6 +27,8 @@ private:
 
 private:
 	Cube mCube;
+	unsigned int mSelectionFbo;
+	unsigned int mSelectionTex;
 	std::vector<unsigned int> mCubeTex;
 	std::shared_ptr<Shader> mShader;
 	std::shared_ptr<Shader> mShadowMapShader;
