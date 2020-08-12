@@ -152,18 +152,20 @@
     <ClInclude Include="SkyBox.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Light.fs" />
-    <None Include="light.vs" />
-    <None Include="Object.fs" />
-    <None Include="Object.vs" />
-    <None Include="SelectionMap.fs" />
-    <None Include="SelectionMap.vs" />
-    <None Include="ShadowQuad.fs" />
-    <None Include="ShadowQuad.vs" />
-    <None Include="ShadowMap.fs" />
-    <None Include="ShadowMap.vs" />
-    <None Include="Skybox.fs" />
-    <None Include="Skybox.vs" />
+    <None Include="shader\CubeEdge.fs" />
+    <None Include="shader\CubeEdge.vs" />
+    <None Include="shader\Light.fs" />
+    <None Include="shader\light.vs" />
+    <None Include="shader\Object.fs" />
+    <None Include="shader\Object.vs" />
+    <None Include="shader\SelectionMap.fs" />
+    <None Include="shader\SelectionMap.vs" />
+    <None Include="shader\ShadowMap.fs" />
+    <None Include="shader\ShadowMap.vs" />
+    <None Include="shader\ShadowQuad.fs" />
+    <None Include="shader\ShadowQuad.vs" />
+    <None Include="shader\Skybox.fs" />
+    <None Include="shader\Skybox.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

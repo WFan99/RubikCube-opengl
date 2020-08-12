@@ -10,9 +10,6 @@
     <ClCompile Include="Object3D.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="Plane.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -26,6 +23,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="ObserverCamera.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -53,44 +53,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ShadowMap.fs">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="ShadowMap.vs">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="ShadowQuad.fs">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="ShadowQuad.vs">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="Skybox.fs">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="Skybox.vs">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="Light.fs">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="light.vs">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="Object.fs">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="Object.vs">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="SelectionMap.vs">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="SelectionMap.fs">
-      <Filter>Shader</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <Filter Include="Shader">
       <UniqueIdentifier>{8b890a7c-59fc-4756-afab-87d1af83dadb}</UniqueIdentifier>
     </Filter>
@@ -100,5 +62,49 @@
     <Filter Include="头文件">
       <UniqueIdentifier>{d5c52775-5a43-46cc-b80e-bfd41e064aad}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shader\CubeEdge.fs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shader\CubeEdge.vs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shader\Light.fs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shader\light.vs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shader\Object.fs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shader\Object.vs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shader\SelectionMap.fs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shader\SelectionMap.vs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shader\ShadowMap.fs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shader\ShadowMap.vs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shader\ShadowQuad.fs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shader\ShadowQuad.vs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shader\Skybox.fs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shader\Skybox.vs">
+      <Filter>Shader</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -5,5 +5,5 @@ uniform int code;
 
 void main()
 {    
-    FragColor.r = code/255.0;
+    FragColor = vec4(code/255.0,0,0,0);
 }

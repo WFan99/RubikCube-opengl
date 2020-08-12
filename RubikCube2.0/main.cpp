@@ -92,35 +92,21 @@ int main()
 	glReadBuffer(GL_NONE);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	// SelectionMapFbo, Red only
-	unsigned int selectionMapFBO;
-	glGenFramebuffers(1, &selectionMapFBO);
-	glBindFramebuffer(GL_FRAMEBUFFER, selectionMapFBO);
-	unsigned int selectionTex;
-	glGenTextures(1, &selectionTex);
-	glBindTexture(GL_TEXTURE_2D, selectionTex);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, SCR_WIDTH, SCR_HEIGHT, 0, GL_RED, GL_FLOAT, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glBindTexture(GL_TEXTURE_2D, 0);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, selectionTex, 0);
-	glBindFramebuffer(GL_FRAMEBUFFER,0);
-
 
 	std::shared_ptr<Shader> objectShader =
-		std::make_shared<Shader>("Object.vs", "Object.fs");
+		std::make_shared<Shader>("shader/Object.vs", "shader/Object.fs");
 	std::shared_ptr<Shader> skyBoxShader =
-		std::make_shared<Shader>("Skybox.vs", "Skybox.fs");
+		std::make_shared<Shader>("shader/Skybox.vs", "shader/Skybox.fs");
 	std::shared_ptr<Shader> lightShader =
-		std::make_shared<Shader>("Light.vs", "Light.fs");
+		std::make_shared<Shader>("shader/Light.vs", "shader/Light.fs");
 	std::shared_ptr<Shader> ShadowQuadShader =
-		std::make_shared<Shader>("ShadowQuad.vs", "ShadowQuad.fs");
+		std::make_shared<Shader>("shader/ShadowQuad.vs", "shader/ShadowQuad.fs");
 	std::shared_ptr<Shader> shadowMapShader =
-		std::make_shared<Shader>("ShadowMap.vs", "ShadowMap.fs");
+		std::make_shared<Shader>("shader/ShadowMap.vs", "shader/ShadowMap.fs");
 	std::shared_ptr<Shader> selectionMapShader =
-		std::make_shared<Shader>("SelectionMap.vs", "SelectionMap.fs");
+		std::make_shared<Shader>("shader/SelectionMap.vs", "shader/SelectionMap.fs");
+	std::shared_ptr<Shader> cubeEdgeShader =
+		std::make_shared<Shader>("shader/CubeEdge.vs", "shader/CubeEdge.fs");
 
 
 	unsigned int planeTex = Object3D::LoadTexture("res/textures/wood.png", true);
@@ -148,10 +134,9 @@ int main()
 	ShadowQuadTexture.SetTex(GL_TEXTURE0, depthMap);
 
 
-	RubikCube rubickCube(objectShader);
+	RubikCube rubickCube(objectShader,cubeEdgeShader);
 	rubickCube.SetShadowMapShader(shadowMapShader);
 	rubickCube.SetSelectionShader(selectionMapShader);
-	rubickCube.SetSelectionObject(selectionMapFBO, selectionTex);
 	pRubickCube = &rubickCube;
 
 	SkyBox skyBox(skyBoxShader);
@@ -171,7 +156,7 @@ int main()
 	objectShader->use();
 	objectShader->setFloat("material.shininess", 16.0f);
 	objectShader->setInt("material.diffuse", 0);
-	objectShader->setVec3("material.specular", glm::vec3(0.3f, 0.3f, 0.3f));
+	objectShader->setVec3("material.specular", glm::vec3(0.5f, 0.5f, 0.5f));
 	objectShader->setInt("shadowMap", 1);
 
 
@@ -196,8 +181,8 @@ int main()
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
 	glEnable(GL_DEPTH_TEST);
+	glCullFace(GL_BACK);
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -221,7 +206,7 @@ int main()
 		rubickCube.DrawShadowMap();
 
 		glm::mat4 planeModel = glm::mat4(1.0f);
-		planeModel = glm::translate(planeModel, glm::vec3(0, -0.5, 0));
+		planeModel = glm::translate(planeModel, glm::vec3(0, -1.0, 0));
 		planeModel = glm::scale(planeModel, glm::vec3(5.0f));
 		planeModel = glm::rotate(planeModel, glm::radians(-90.0f), glm::vec3(1.0f, 0, 0));
 		shadowMapShader->setMat4("model", planeModel);
@@ -235,7 +220,7 @@ int main()
 #endif
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 		glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
 		
 		glm::mat4 projection = glm::perspective(glm::radians(observerCamera.GetZoom()),
@@ -253,7 +238,12 @@ int main()
 
 		objectShader->setMat4("model", planeModel);
 		plane.Draw();
+		glEnable(GL_STENCIL_TEST);
+		cubeEdgeShader->use();
+		cubeEdgeShader->setMat4("projection", projection);
+		cubeEdgeShader->setMat4("view", view);
 		rubickCube.Draw();
+		glDisable(GL_STENCIL_TEST);
 
 		glm::mat4 lightModel = glm::mat4(1.0f);
 		lightModel = glm::translate(lightModel, lightPos);
@@ -284,7 +274,14 @@ void processInput(GLFWwindow *window)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
-
+	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+		pRubickCube->ProcessKeyboardEvent(RubikCube::MoveLeft);
+	else if(glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+		pRubickCube->ProcessKeyboardEvent(RubikCube::MoveRight);
+	else if(glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+		pRubickCube->ProcessKeyboardEvent(RubikCube::MoveUp);
+	else if(glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+		pRubickCube->ProcessKeyboardEvent(RubikCube::MoveDown);
 }
 
 
@@ -323,6 +320,10 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
 	{
 		pRubickCube->ProcessClickEvent(xpos, ypos, true);
+	}
+	else if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)
+	{
+		pRubickCube->ProcessClickEvent(xpos, ypos, false);
 	}
 }
 
