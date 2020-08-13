@@ -398,14 +398,32 @@ void RubikCube::RotateVerticalTexUp()
 void RubikCube::RotateHorizontalTexLeft()
 {
 	int index;
-	if (mClickedLayer == VerticalLeft)
+	if (mClickedLayer == HorizonDown)
+	{
+		auto colorDown = mColors[Bottom];
+		int changed[] = { 2,5,8,1,4,7,0,3,6 };
+		for (int i = 0; i < 9; i++)
+			mColors[Bottom][i] = colorDown[changed[i]];
 		index = 0;
-	else if (mClickedLayer == VerticalMid)
-		index = 3;
-	else if (mClickedLayer == VerticalRight)
-		index = 6;
-
+	}
+	else if (mClickedLayer == HorizonMid)
+		index = 1;
+	else if (mClickedLayer == HorizonTop)
+	{
+		auto colorTop = mColors[Top];
+		int changed[] = { 6,3,0,7,4,1,8,5,2 };
+		for (int i = 0; i < 9; i++)
+			mColors[Top][i] = colorTop[changed[i]];
+		index = 2;
+	}
 	auto tempFront = mColors[Front];
+	for (int i = index; i < 7 + index; i += 3)
+	{
+		mColors[Front][i] = mColors[Right][i];
+		mColors[Right][i] = mColors[Back][-i + 8];
+		mColors[Back][-i + 8] = mColors[Left][i];
+		mColors[Left][i] = tempFront[i];
+	}
 }
 
 void RubikCube::ProcessKeyboardEvent(Move event)
